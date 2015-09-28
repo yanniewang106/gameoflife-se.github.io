@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Game of Life</title>
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<style type = "text/css">
+			canvas{ left : 300px ; right : 300px ; position : absolute }
+		</style>
+	</head>
+	<body>
+		<div class="main-button-container">
+			<div class="button orange">START</div>
+			<div class="button orange">RANDOM</div>
+			<div class="button orange">PAUSE</div>
+			<div class="button orange">RESTART</div>
+		</div>
+		<canvas id = "myCanvas" width = 640px height = 660px ;></canvas>
+		<script type = "text/javascript">
+			function draw()
+			{
+				var side = 20
+				var initx = 9
+				var inity = 30
+				
+				var c = document.getElementById("myCanvas");
+				var cxt = c.getContext("2d");
+				for(var i = 0 ; i <= 31 ; i++)
+				{
+					cxt.moveTo(initx , inity + i * side)
+					cxt.lineTo(initx + 31 * side , inity + i * side)
+					cxt.moveTo(initx + i * side , inity)
+					cxt.lineTo(initx + i * side , inity + 31 * side)
+				}
+				cxt.stroke()
+			}
+		</script>
+		<script type = "text/javascript">
+			function RandomInit()
+			{
+				for(var i = 0 ; i <= initradius * 2 ; i++)
+					for(var j = 0 ; j <= initradius * 2 ; j++)
+						initpos[i][j] = false
+				for(var i = 0 ; i < initnumber ; i++)
+				{
+					var success = false
+					while(!success)
+					{
+						var temp
+						temp = parseInt(Math.random() * (2 * initradius + 1) * (2 * initradius + 1))
+						//alert(temp)
+						//debugger
+						if(initpos[parseInt(temp / (2 * initradius + 1))][temp % (2 * initradius + 1)] == false)
+						{
+							initpos[parseInt(temp / (2 * initradius + 1))][temp % (2 * initradius + 1)] = true
+							success = true
+						}
+					}
+				}
+				for(var i = 0 ; i <= initradius * 2 ; i++)
+					for(var j = 0 ; j <= initradius * 2 ; j++)
+						cell[0][i + midx - initradius][j + midy - initradius] = initpos[i][j]
+			}
+		</script>
+		<script type = "text/javascript">
+			var midx = 50
+			var midy = 50
+			var LogicBorderx = 99
+			var LogicBordery = 99
+			var width = 10
+			var height = 10
+			var initnumber = 20
+			var initradius = 3
+			
+			var time = 0
+			
+			cell = new Array(2);
+			cell[0] = new Array(LogicBorderx + 2)
+			cell[1] = new Array(LogicBorderx + 2)
+			for(var i = 0 ; i <= LogicBorderx + 1 ; i++)
+			{
+				cell[0][i] = new Array(LogicBordery + 2)
+				cell[1][i] = new Array(LogicBordery + 2)
+			}
+			var initpos = new Array(initradius * 2 + 1)
+			for(var i = 0 ; i <= initradius * 2 ; i++)
+				initpos[i] = new Array(initradius * 2 + 1)
+			
+			for(var i = 0 ; i <= LogicBorderx + 1 ; i++)
+				for(var j = 0 ; j <= LogicBordery + 1 ; j++)
+					cell[0][i][j] = cell[1][i][j] = false;
+			
+			draw()
+			RandomInit()
+			
+			var loop = setInterval("refresh()", 1000)
+		</script>
+		<script type = "text/javascript">
+			function refresh()
+			{
+				var border = 15
+				var c = document.getElementById("myCanvas");
+				var cxt = c.getContext("2d");
+				
+				for(var i = midx - border ; i <= midx + border ; i++)
+					for(var j = midy - border ; j <= midy + border ; j++)
+					{
+						nowx = i - midx + border
+						nowy = j - midy + border
+						if(cell[time & 1][i][j] == true)
+						{
+							cxt.fillStyle = "orange"
+							cxt.beginPath()
+							cxt.arc(9 + nowx * 20 + 10 , 30 + nowy * 20 + 10 , 6 , 0 , 2 * Math.PI , true)
+							cxt.fill()
+						}
+						else
+						{
+							cxt.fillStyle = "#FFFFFF"
+							cxt.beginPath()
+							cxt.arc(9 + nowx * 20 + 10 , 30 + nowy * 20 + 10 , 7 , 0 , 2 * Math.PI , true)
+							cxt.fill()
+						}
+					}
+				
+				GetCell();
+				time ++;
+			}
+		</script>
+		<script type = "text/javascript">
+			function GetCell()
+			{
+				for(var i = 1 ; i <= LogicBorderx ; i++)
+					for(var j = 1 ; j <= LogicBordery ; j++)
+					{
+						var number = 0
+						number += cell[time & 1][i - 1][j - 1]
+						number += cell[time & 1][i][j - 1]
+						number += cell[time & 1][i + 1][j - 1]
+						number += cell[time & 1][i - 1][j + 1]
+						number += cell[time & 1][i][j + 1]
+						number += cell[time & 1][i + 1][j + 1]
+						number += cell[time & 1][i - 1][j]
+						number += cell[time & 1][i + 1][j]
+						
+						if(number == 3)
+							cell[time & 1 ^ 1][i][j] = true
+						else if(number == 2)
+							cell[time & 1 ^ 1][i][j] = cell[time & 1][i][j]
+						else cell[time & 1 ^ 1][i][j] = false
+					}
+			}
+		</script>
+		<img class="intro" src="images/intro.jpg" />
+	</body>
+</html>
